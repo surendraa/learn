@@ -1,0 +1,148 @@
+= Kubernetes
+
+* equivalent to docker swarm and mesos
+* open source orchestration for containers
+** lets you schedule containers on a cluster of machines
+** run multiple containers on one machine
+** run long running services (like web applications)
+* Kubernetes can manage state of the containers
+** start/stop container on specific nodes
+** automatically restarts when containers gets killed
+** can move containers from one node to another
+** can manage one node to thousands of nodes
+* can run on premise, cloud and hybrid (premise & cloud)
+
+
+* Docker containers runs on docker engine
+* rkt (rocket) is an alternative for docker container
+
+
+
+== Kubernetes setup
+* K8s can run anywhere
+* Using Volumes and External Load Balancers needs support on the cloud for kubernetes
+* AWS and GCE(google cloud) support it
+
+
+== minikube
+* `minikube` to spin up local single machine kubernetes cluster
+* minikube cannot spin up a production grade cluster, it supports only one cluster with no high availability
+* minikube can be used for development
+* works on windows, linux and macos
+* needs virtualization machine
+
+.minikube commands:
+====
+* go to github and download minikube
+* then run `minikube start`
+* it creates ~/.kube/config
+* kubectl run hello-kube --image=k8s.gcr.io/echoserver:1.4 --port=8080
+deployment.apps/hello-kube created
+
+➜  ~ kubectl expose deployment hello-kube --type=NodePort
+service/hello-kube exposed
+
+➜  ~ kubectl get service hello-kube
+
+NAME         TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+hello-kube   NodePort   10.99.68.197   <none>        8080:31110/TCP   14s
+====
+
+.kubectl commands:
+====
+* install kubectl `brew install kubernetes-cli`
+* kubectl run
+* kubectl expose
+====
+
+== docker client
+* alternative to minikube
+* run kubernetes in docker client
+* change kubectl context
+* run a cloud image like echo server
+* create and expose the service
+
+.k8s using docker client
+====
+* kubectl get nodes
+* kubectl config get-context
+* change context if necessary
+* kubectl run and expose
+====
+
+== Production level kubernetes client
+* kops / kubeadm
+* kops is recommended for aws
+* `kops` is a production grade cluster spinner for AWS
+
+== Kubernetes on AWS
+* kops (kubernetes operations)
+* kops is used to manage, update , start kubernetes
+* kube-up.sh is a deprecated tool for kubernetes management
+* kops works only on mac/linux
+
+====
+* create a user in aws
+* create a s3 bucket in the closest region to you
+* create proper DNS mapping
+* `kops create cluster --name=k8s.suru.gq --state=s3://k8s.suru.gq --zones=us-east-1a --node-count=2 --node-size=t2.micro --master-size=t2.micro --dns-zone=k8s.suru.gq`
+* kops update
+* now kops and kubectl are interconnected
+* if there is certificate error delete the root certificate and add insecure-skip-tls-verify: true to the particular cluster in .kube/config
+* kubectl get node
+* kubectl run hello-minikube --image=k8s.gcr.io/echoserver:1.4 --port=8080
+* kubectl expose deployment hello-minikube --type=NodePort
+* kubectl get services
+* open inbound traffic on the nodes (EC2) in aws
+* get the public ip of the node in EC2 and the port exposed and you should be able to get the the service through the ip and port
+* kops delete cluster --name k8s.suru.gq
+====
+
+== Running Docker
+.docker commands
+====
+* Install docker
+* go into working dir
+* create the dockerfile and the app
+* `sudo docker build .`
+* `sudo docker run -p 3000:3000 -it <machine build name>`
+* docker build -t docker-login/docker-name
+* docker push docker-login/docker-name
+====
+
+.things_to_remember
+====
+* run only one process per container
+* do not make the container too large
+* split if necessary
+====
+
+== Running docker on Kubernetes
+* create a pod definition
+* pod is an application running on kubernetes
+* a pod can contain one or more tightly coupled containers
+* apps can communicate to each other using port numbers
+
+====
+* create a yml file for kubernetes for pods
+* check if a node is running with kubectl get node (example minikube)
+* kubectl create -f <filename>.yml
+* kubectl get pod
+* kubectl describe pod <podname>
+* kubectl port-forward <podname> 8081:3000
+* kubectl expose pod <podname> --type=NodePort --name="service name"
+* minikube service <service name> --url
+* kubectl get service
+
+* kubectl attach <podname>
+* kubectl exec <podname> -- <bash command>
+* kubectl get service
+* kubectl describe <podname>
+====
+
+== Load Balancer service with docker and k8s
+* use type LoadBalancer and kind: service
+
+
+
+

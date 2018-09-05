@@ -1,0 +1,101 @@
+= The Rails 5 way
+:source-highlighter: highlightjs
+
+* <<config_env>>
+** <<bundler>>
+** <<startup_scripts>>
+** <<default_initializers>>
+
+[[config_env, Config and Env]]
+== Config and Environments
+* Three default envs `development` `test` `production`
+* RAILS_ENV or RACK_ENV
+* config/environments folder
+
+[[bundler, Bundler]]
+=== Bundler
+* Dependency management for gems
+
+.sample gem file content
+[source,ruby]
+----------
+group :development do
+  gem 'pry'
+end
+gem 'nokogiri', '1.5.6'
+gem 'webmock', require: 'webmock/rspec'
+gem 'decent_exposure', '~> 2.0.1'
+gem 'carrierwave', git: 'git@github.com:carrierwaveuploader/carrierwave.git'
+gem 'carrierwave', github: 'carrierwaveuploader/carrierwave'
+gem 'deep_merge', '1.0', git: 'git://github.com/peritor/deep_merge.git'
+git 'git://github.com/rails/rails.git', ref: '4aded'
+git 'git://github.com/rails/rails.git', branch: '3-2-stable'
+git 'git://github.com/rails/rails.git', tag: 'v3.2.11'
+gem 'nokogiri', path: '~/code/nokogiri'
+----------
+`bundle show [gemname]`
+
+* Gemlock file should always checked into source code `bundle package`
+* package all gems under `vendor/cache`
+* Non rails scripts must be executed with bundle exec
+* `bundle binstubs [gemname]`
+
+[[startup_scripts,Start Up]]
+=== Startup scripts
+* config/boot.rb is loaded first
+** sets up bundler and load paths
+* config/environment.rb is loaded
+** this file loads application.rb and initilizes the rails app
+* application.rb
+** loads rails gem and the env specific gems
+** your app in loaded in a module which lets you run multiple rails apps in the same ruby process
+
+[[default_initializers, Initializers]]
+=== Default initializers
+
+.config/initializers
+[options="header",cols="1,1a",separator=;]
+|====
+; File ; Use
+
+; applicaiton_controller_renderer.rb
+; sets render defaults like host name and https
+
+; assets.rb
+; customize asset pipeline configuration
+
+; backtrace_silencers.rb
+; suppress unwanted / long exception messages
+
+; cookies_serializer.rb
+; serialize cookies (key/value) pair (:json, :marshal, :hybrid)
+
+; filter_parameter_logging.rb
+; filter request / response params, IP addr, url path, etc.,
+
+; inflections.rb
+;
+[source,ruby]
+.plural, singular
+ActiveSupport::Inflector.inflections(:en) { |inflect|
+  inflect.plural /^(ox)$/i, '\1en'
+  inflect.singular /^(ox)en/i, '\1'
+  inflect.irregular 'person', 'people'
+  inflect.uncountable %w( fish sheep )
+}
+
+; mime_types.rb
+; register to respond to other / custom mime types
+
+; new_framework_defaults.rb
+; ease migrations to rails 5 from earlier versions
+
+; session_store.rb
+; session store type and key
+config/secrets.yml
+run `rake secret` to generate secret
+
+; wrap_parameters.rb
+; used to wrap params from js clients in hash
+|====
+
