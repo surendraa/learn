@@ -142,6 +142,21 @@ hello-kube   NodePort   10.99.68.197   <none>        8080:31110/TCP   14s
 
 == Load Balancer service with docker and k8s
 * use type LoadBalancer and kind: service
+* create a cluster (kops/minikube)
+* create a pod
+* create a load balancer (service)
+* update domain / subdomain (route 53)
+
+===========
+
+== Kubernetes Basics
+
+=== Structure
+
+* A service (like load balancer) -> ip tables -> nodes -> pods > containers
+* Each pod can contain multiple containers
+* Apps can use localhost and port within the same pod, but traffic goes through the network b/w pods
+* kube-proxy is the one that updates ip tables for the pods and containers
 
 
 
