@@ -147,17 +147,23 @@ hello-kube   NodePort   10.99.68.197   <none>        8080:31110/TCP   14s
 * create a load balancer (service)
 * update domain / subdomain (route 53)
 
-===========
-
-== Kubernetes Basics
-
-=== Structure
+== General Structure of kubernetes
 
 * A service (like load balancer) -> ip tables -> nodes -> pods > containers
 * Each pod can contain multiple containers
 * Apps can use localhost and port within the same pod, but traffic goes through the network b/w pods
 * kube-proxy is the one that updates ip tables for the pods and containers
 
+== Replication controller
 
+* Deals with scaling
+* `kind: ReplicationController`
+* used to make sure a certain number of pods are running all the time
+* can be used to keep one pod running even after rebootgg
+
+====
+* sudo kubectl create -f helloworld-repl-controller.yml
+* sudo kubectl scale --replicas=4 replicationcontroller/helloworld-controller
+====
 
 
