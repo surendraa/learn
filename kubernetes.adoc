@@ -160,10 +160,34 @@ hello-kube   NodePort   10.99.68.197   <none>        8080:31110/TCP   14s
 * `kind: ReplicationController`
 * used to make sure a certain number of pods are running all the time
 * can be used to keep one pod running even after rebootgg
+* replication sets can be used to target a particular set of pods for replication (advanced than replication controller)
 
 ====
 * sudo kubectl create -f helloworld-repl-controller.yml
 * sudo kubectl scale --replicas=4 replicationcontroller/helloworld-controller
 ====
 
+== Deployments
+* kind: Deployment
+* can do rollout deployments
+* useful for stateless apps
+
+.deployment commands
+====
+* kubectl create -f deployment/filename
+* kubectl get deployments
+* kubectl get rs
+* kubectl rollout status
+* kubectl expose deployment
+* kubectl set image <new image name>
+* sudo kubectl set image helloworld-deployment k8s-demo=wardviaene/k8s-demo:2
+* sudo kubectl get pods
+* sudo kubectl rollout history deployment/helloworld-deployment
+* sudo kubectl rollout undo deployment/helloworld-deployment
+====
+
+== Services
+* kubectl expose creates a service automatically
+* service can also be created manually
+* Pods are dynamic and should not be accessed directly but through service
 
