@@ -191,3 +191,161 @@ hello-kube   NodePort   10.99.68.197   <none>        8080:31110/TCP   14s
 * service can also be created manually
 * Pods are dynamic and should not be accessed directly but through service
 
+== Labels
+* are like tags
+* key: value
+* not unique
+* can use filters to narrow down - these are called node selectors
+* kubectl label nodes
+
+== Healthchecks
+* running a command on a container
+* periodic checks on URL (http)
+* livelinessProbe setting on
+* success and failure and timeouts can be defined
+* edit a deployment to change health check settings
+
+== Rediness Probe
+* readinessProbe - a little different from liveness probe
+* will wait for the readiness probe to succeed before serving the requests
+
+== Pod state
+* check pod lifecycle
+
+== Pod lifecycle
+* init container
+* post start hook
+* readiness / liveliness probe
+* pre stop hook
+
+== Secrets
+* Distribute credentials, keys and passwords to the pods
+* native to kubernetes
+* can use external vault service to bypass kubernetes
+* secrets as env variables
+* as files in volumes
+* dotenv files
+* can also use external image to pull secrets
+
+* kubectl create secret generic db-user-pass --from-file=<f1> --from-file=<f2>
+* secrets can also be ssh keys and ssl certs
+* kind secret
+* add env variables
+
+* mount volumes and then share secrets as files
+
+== Web UI
+* overview of running apps on your cluster
+* creating and modifying your cluster
+* retrieve state of resources
+* https://kubernetes master /ui
+* manually install it with kubernetes-dashboard.yaml from k8s git repo
+* kubectl config view
+* minikube dashboard
+* minikube dashboard --url
+
+*****
+
+= Advanced Topics
+
+== Service Discovery using DNS
+* addons are in /etc/kubernetes/addons
+* using the name of the service should provide a way for service discovery
+
+== ConfigMap
+* to use any key / value pairs , env vars or files other than secrets
+
+== Ingress controller
+* use a load balancer like nginx with rules defined for forwarding to the correct pod/container
+* alternative for loadbalancer and nodeports
+* provides public access to the clusters
+* kind: Ingress
+
+
+== External DNS
+* creating records in AWS for the dns
+* instead of manually creating records kubernetes will create the dns records for us.
+
+== Volumes
+* store data outside container
+* data within container is lost when container stops
+* volumes can be attached using volume plugins
+* Create a volume first
+* specify volumeMounts
+
+== Autoprovisioned volumes
+* kind: StorageClass
+* create a volume and then mount it on the pod that you want
+
+== Pod presets
+* to inject information into pods during run time
+* kind: PodPreset
+* to add env variables / files / config etc.,
+
+== Stateful sets
+* need a stable pod hostname
+* sticky identity using index like podname-0 podname-1, etc., (upto n-1)
+* without stateful sets the pods are dynamic names
+
+== Daemon sets
+* pods will not be rescheduled
+* like logging, monitoring, lbs, reverse proxies, api gateways
+
+
+== Resource usage monitoring
+* heapster
+* requisite to do pod autoscaling
+* heapster is depricated , use metrics server
+* third party tool like prometheus
+* kubectl top node / pod
+
+== Autoscaling
+* automatically scale pods using metrics
+* cluster has to be started with ENABLE_CUSTOM_METRICS
+* kind: HorizontalAutoScaling - hpa
+
+== Affinity / Anti affinity
+* similar to node selector but has rules for scheduling pods using preferred rules
+* can supply a weighting
+* can use prepopulated labels
+
+== Interpod affinity / anti affinity
+* similar to node affinity and anti affinity
+
+== Taints and Tolerations
+* Taints are applied to nodes and tolerations are applied to pods
+* kubectl taint node node1 key=value
+* tolerations are used like antiaffinity
+* tolerations: NoSchedule
+* kubectl taint node node1 key- => remove a taint
+
+== Custom resource definition
+* api for collection of resources
+
+== Operators
+* like modules in puppet
+
+****
+== Administration Master services
+
+== Resource quotas
+* kind: ResourceQuota
+
+== Namespace
+* default: default
+* resources should be unique in a namespace
+
+== Users
+* normal user
+* service user
+* Authentication strategies for normal users
+** Client certificates
+** Bearer Tokens
+** Authentication Proxy
+** HTTP Basic Authentication
+** OpenID
+** Webhooks
+* Service Accounts
+** credentials using namespace
+* ABAC (authorization based ), RBAC (role based)
+*

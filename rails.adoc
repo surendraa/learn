@@ -1,24 +1,20 @@
+:toc:
+
 = The Rails 5 way
-:source-highlighter: highlightjs
 
-* <<config_env>>
-** <<bundler>>
-** <<startup_scripts>>
-** <<default_initializers>>
+== Rails configuration and Environments
 
-[[config_env, Config and Env]]
-== Config and Environments
+=== Defaults
 * Three default envs `development` `test` `production`
 * RAILS_ENV or RACK_ENV
 * config/environments folder
 
-[[bundler, Bundler]]
 === Bundler
 * Dependency management for gems
 
 .sample gem file content
 [source,ruby]
-----------
+------
 group :development do
   gem 'pry'
 end
@@ -32,13 +28,15 @@ git 'git://github.com/rails/rails.git', ref: '4aded'
 git 'git://github.com/rails/rails.git', branch: '3-2-stable'
 git 'git://github.com/rails/rails.git', tag: 'v3.2.11'
 gem 'nokogiri', path: '~/code/nokogiri'
-----------
+------
+
 `bundle show [gemname]`
 
 * Gemlock file should always checked into source code `bundle package`
 * package all gems under `vendor/cache`
+* `bundle install --local` to install gems from local
 * Non rails scripts must be executed with bundle exec
-* `bundle binstubs [gemname]`
+* `bundle binstubs [gemname]` to add a gem to the bin executable command
 
 [[startup_scripts,Start Up]]
 === Startup scripts
@@ -98,4 +96,226 @@ run `rake secret` to generate secret
 ; wrap_parameters.rb
 ; used to wrap params from js clients in hash
 |====
+
+=== Other common initializers
+[options="header",cols="1,1a",separator=;]
+|====
+
+; config/property
+; explanation
+
+; config.time_zone
+; configures the time zone `rake time:zones:all`
+
+; localization
+; i18n.default_locale | i18n.load_path
+
+; generator settings
+; config.generators {}
+
+; log level override
+; config.log_level
+
+; schema dumper
+; config.active_record.schema_format = :sql
+
+; console settings
+;
+[source,ruby]
+console do
+  def obie
+    User.where(email: "obiefernandez@gmail.com").first
+  end
+end
+|====
+
+=== Spring application Preloader
+* helps in reloading application be watching config and initializers
+* config/spring.rb
+
+.spring example
+====
+[source,ruby]
+%w(
+ .ruby-version
+ .rbenv-vars
+ tmp/restart.txt
+ tmp/caching-dev.txt
+).each { |path| Spring.watch(path) }
+====
+
+=== Rails class loader
+* rails loads missing classes by a special file look up
+* $LOAD_PATH on rails console
+* MacGyver::SwissArmyKnife becomes require "mac_gyver/
+swiss_army_knife".
+
+=== Eager load
+* loads most of the classes into memory
+* config.eager_load = false
+* in production config.eager_load = true
+
+=== Error reporting
+* config.consider_all_requests_local = true -> rails friendly error messages on the screen
+
+=== Action Mailer settings
+* config.action_mailer.raise_delivery_errors = false
+* config.action_mailer.perform_deliveries =
+false
+* config.action_mailer.perform_caching = false
+
+=== Assets
+* config.assets.debug = false in prod
+* config.assets.quiet = true
+* config.assets.precompile += %w( admin.css )
+* config.assets.compile = true for fallback asset compilation
+*  config.action_
+controller.asset_host
+
+=== Missing translations
+* config.action_view.raise_on_missing_translations = true
+
+=== Configuring a database
+
+=== Secrets
+* config/secrets.yml
+* development:
+    secret_key_base: 7aed4bcb28...
+*  Rails.application.secrets
+
+=== Logging
+* Rails.logger -> has the logger that is needed
+* logger = Logger.new STDOUT
+* debug, info, warn, error, fatal
+* rake log:clear
+* config.log_tags
+* colorize_logging
+* syslogger
+
+
+
+== Routes
+
+== Caching and Performance
+
+=== View Caching
+* active view template is powerful
+* Page caching
+** Entire page is cached and the dispatcher is not involved
+* caches_page :index
+* gem 'actionpack-page_caching'
+
+===  Action caching
+* dispatcher is involved on the controller filter level
+* gem 'actionpack-action_caching'
+
+===  Fragment caching
+* only fragments of reusable page is cached
+* add cache do blocks in the markup / erb templates
+
+* change the fragment cache with locale, params and other dynamic information to cache efficiently and also cache bust as needed
+
+.fragment cache example
+====
+- cache [@user, :entries, locale: @user.locale, page:
+[source,ruby]
+params[:page]] do
+ %ul.entries
+ = render partial: 'entry', collection: @entries
+====
+
+=== global fragments
+* use the name as a string for the cache
+
+* Russian doll caching
+* https://signalvnoise.com/posts/3112-how-basecamp-next-got-to-be-so-damn-fast-without-using-much-client-side-ui
+
+=== Cache control headers
+* expires_in()
+* expires_now()
+
+=== Etags
+* fresh_when()
+* stale?()
+
+== Background Processing
+
+== Asset Pipeline
+* Javascript, CSS and HTML/ other static files like images
+* Sprokets is at the code of rails asset pipeline
+* gem sprokets-rails
+
+* consolidate files of same kind into one
+* maximum compression level
+* cache busting strategies
+
+* app/assets, lib/assets, vendor/assets
+* No longer need to copy static assets with your gems, asset pipeline automatically finds them
+
+=== Manifest Files
+* app/assets/javascripts/application.js
+* app/assets/javascripts/application.css
+
+=== Manifest directives
+* require
+* require_tree
+* require_self
+* include
+* depend_on
+
+=== Search path
+* standard asset paths with mathcing file names
+* gemified assets should include an engine to add its paths to rails to search for assets
+* an index.js file can be used to include the whole library inside a gem
+
+=== Format handlers
+* right to left extension naming
+* Tilt gem
+
+=== Post processing
+* yui compressor for css by default
+* config.assets.css_compressor = :sass
+* uglifier for js for default
+*  config.assets.js_compressor
+
+=== Helpers
+* <%=stylesheet_link_tag "application" %>
+* <%=javascript_include_tag "application" %>
+* Rails.application.config.assets.precompile += %w(search.js ) ->  precompile any additional assets not in application
+
+=== Images
+* images are searches under assets/images
+* Rails.application.config.assets.paths << Emoji.images
+
+=== URL of assets
+* asset_path
+* asset_url
+* asset_data_uri -> embed source inline
+
+=== Serving assets
+* in dev mode sprokets serves the assets
+* in prod assets should be served by apache server
+* config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
+
+
+=== Fingerprinting
+* based on asset content
+* change version in assets.rb to invalidate all assets
+
+=== Rake for assets
+* RAILS_ENV=production bundle exec rake assets:precompile
+* rake assets:clobber
+* precompiled assets are stored in /public/assets directory
+
+=== Yarn
+* use yarn to install js dependencies ans then include them in application manifest files
+
+=== Webpack
+* rails myapp --webpack
+* or gem 'webpacker'
+* rails webpacker:install
+
+== Ajax on rails
+
+== Turbo links
 
